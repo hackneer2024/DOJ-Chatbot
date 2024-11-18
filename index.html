@@ -360,60 +360,6 @@
             font-size: 1.5em;
             line-height: 1.6;
         }
-        
-        /*ChatGPT*/
-        .chatbot-icon-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 10000;
-}
-
-.chatbot-icon {
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.chatbot-icon-image {
-    width: 50px;
-    height: 50px;
-}
-
-.hidden {
-    display: none;
-}
-
-.chatbot-container {
-    position: fixed;
-    bottom: 70px;
-    right: 20px;
-    width: 400px;
-    height: 500px;
-    background: white;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 50px;
-    z-index: 9999;
-    transform: translateY(100%); /* Start position off-screen */
-    transition: transform 0.5s ease-in-out; /* Animate the transform property */
-    opacity: 0; /* Initially hidden */
-    visibility: hidden; /* Hide the container for better performance */
-}
-
-.chatbot-container.active {
-    transform: translateY(0); /* Slide up animation */
-    opacity: 1; /* Make it visible */
-    visibility: visible; /* Ensure it's visible when active */
-}
-
-.chatbot {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
-
-                
-                
-        
     </style>
     <link rel="stylesheet" id="extra-feature-css-css"
         href="https://doj.gov.in/wp-content/plugins/common_utility/css/extra.features.css?ver=1.1" media="all">
@@ -3767,54 +3713,14 @@
         frameborder="0" allowtransparency="true" allowfullscreen="true"
         style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;"
         title="Twitter analytics iframe"></iframe>
-    
-        <div class="chatbot-icon-container">
-            <div class="chatbot-icon" id="chatbot-icon">
-                <img src="gavel_and_block.png" alt="Chatbot Icon" id="default-icon" class="chatbot-icon-image">
-                <img src="gavel_hitting_block.png" alt="Chatbot Hit Icon" id="hit-icon" class="chatbot-icon-image hidden">
-            </div>
-            <div class="chatbot-container" id="chatbot-container">
-                <iframe 
-                    class="chatbot" 
-                    allow="microphone;" 
-                    src="https://console.dialogflow.com/api-client/demo/embedded/3cce76ac-3bb3-4703-8a0e-6b288ef5e170">
-                </iframe>
-            </div>
-        </div>
-        
-        
-
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-            const chatbotIcon = document.getElementById("chatbot-icon");
-            const chatbotContainer = document.getElementById("chatbot-container");
-            const defaultIcon = document.getElementById("default-icon");
-            const hitIcon = document.getElementById("hit-icon");
-        
-            // Toggle Chatbot with Icon Animation
-            chatbotIcon.addEventListener("click", () => {
-                if (chatbotContainer.classList.contains("active")) {
-                    // If the chatbot is open, close it
-                    chatbotContainer.classList.remove("active");
-                    setTimeout(() => {
-                        defaultIcon.classList.remove("hidden");
-                        hitIcon.classList.add("hidden");
-                    }, 300); // Match the duration of the closing animation
-                } else {
-                    // If the chatbot is closed, open it
-                    defaultIcon.classList.add("hidden");
-                    hitIcon.classList.remove("hidden");
-        
-                    setTimeout(() => {
-                        chatbotContainer.classList.add("active");
-                    }, 300); // Delay to match icon animation
-                }
-            });
-        });
-        
-        </script>
-    
-        
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+        <df-messenger
+          intent="WELCOME"
+          chat-title="MITRA"
+          agent-id="3cce76ac-3bb3-4703-8a0e-6b288ef5e170"
+          language-code="en"
+          allow="microphone;"
+        ></df-messenger>
 </body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
 
 </html>
