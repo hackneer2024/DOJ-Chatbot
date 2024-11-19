@@ -381,6 +381,11 @@
             color: white;
             font-size: 24px;
         }
+        #microphone.listening {
+            background-color: red; /* Highlight during listening */
+            color: white;
+        }
+
 
     </style>
     <link rel="stylesheet" id="extra-feature-css-css"
@@ -3735,14 +3740,6 @@
         frameborder="0" allowtransparency="true" allowfullscreen="true"
         style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;"
         title="Twitter analytics iframe"></iframe>
-    
-    <!-- Microphone Button -->
-    <button id="microphone">
-        <i class="material-icons">mic</i>
-    </button>
-    
-    <!-- Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
         <df-messenger
@@ -3752,39 +3749,77 @@
           language-code="en"
         ></df-messenger>
     
+        <!-- Microphone Button -->
+    <button id="microphone">
+        <i class="material-icons">mic</i>
+    </button>
+    
+    <!-- Chat Output -->
+    <div id="chat-output"></div>
+    
+    <!-- Include Speech Recognition Script -->
     <script>
-        const microphoneButton = document.getElementById("microphone");
-        const dfMessenger = document.querySelector("df-messenger");
+        document.addEventListener("DOMContentLoaded", () => {
+            const microphoneButton = document.getElementById("microphone");
+            const chatOutput = document.getElementById("chat-output");
+            const backendUrl = "http://localhost:8000/chat"; // Replace with your backend URL
     
-        microphoneButton.addEventListener("click", () => {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.lang = "en-US"; // Set language to English (change for other languages if needed)
-            recognition.interimResults = false;
+            microphoneButton.addEventListener("click", () => {
+                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.lang = "en-US";
+                recognition.interimResults = false;
     
-            recognition.start();
+                recognition.start();
     
-            recognition.onstart = () => {
-                console.log("Listening...");
-            };
+                recognition.onstart = () => {
+                    console.log("Listening...");
+                    microphoneButton.classList.add("listening"); // Optional: Add CSS for visual feedback
+                };
     
-            recognition.onspeechend = () => {
-                recognition.stop();
-            };
+                recognition.onspeechend = () => {
+                    recognition.stop();
+                    microphoneButton.classList.remove("listening"); // Stop visual feedback
+                };
     
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                console.log("Recognized text:", transcript);
+                recognition.onresult = async (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    console.log("Recognized text:", transcript);
     
-                // Send the recognized speech to Dialogflow Messenger
-                dfMessenger.renderCustomText(transcript);
-            };
+                    // Display user's input
+                    const userMessage = document.createElement("div");
+                    userMessage.textContent = `You: ${transcript}`;
+                    chatOutput.appendChild(userMessage);
     
-            recognition.onerror = (event) => {
-                console.error("Speech recognition error:", event.error);
-                alert("Sorry, I couldn't understand you. Please try again.");
-            };
+                    // Send transcript to the backend
+                    try {
+                        const response = await fetch(backendUrl, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ message: transcript }),
+                        });
+    
+                        const data = await response.json();
+                        if (data.response) {
+                            const botResponse = document.createElement("div");
+                            botResponse.textContent = `Bot: ${data.response}`;
+                            chatOutput.appendChild(botResponse);
+                        } else {
+                            console.error("Error:", data.error);
+                        }
+                    } catch (error) {
+                        console.error("Error communicating with backend:", error);
+                    }
+                };
+    
+                recognition.onerror = (event) => {
+                    console.error("Speech recognition error:", event.error);
+                    alert("Sorry, I couldn't understand you. Please try again.");
+                };
+            });
         });
     </script>
+
+        
         
 </body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
 
