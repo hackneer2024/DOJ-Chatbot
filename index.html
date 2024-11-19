@@ -360,17 +360,18 @@
             font-size: 1.5em;
             line-height: 1.6;
         }
-
+    </style>
+    <style>
         /* Microphone button style */
         #microphone {
             position: fixed;
-            bottom: 80px; /* Place above chatbot */
-            right: 20px;
+            bottom: 20px; /* Place above chatbot */
+            right: 80px;
             background-color: #007bff;
             border: none;
             border-radius: 50%;
-            width: 60px;
-            height: 60px;
+            width: 57px;
+            height: 57px;
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -386,7 +387,6 @@
         #microphone.listening {
             background-color: red; /* Highlight during listening */
         }
-
     </style>
     <link rel="stylesheet" id="extra-feature-css-css"
         href="https://doj.gov.in/wp-content/plugins/common_utility/css/extra.features.css?ver=1.1" media="all">
@@ -3738,17 +3738,7 @@
         style="position: absolute; visibility: hidden; display: none; width: 0px; height: 0px; padding: 0px; border: none;"
         title="Twitter analytics iframe"></iframe>
 
-        <!-- Material Icons for the mic icon -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    
-    <!-- Microphone Button -->
-    <button id="microphone-btn">
-        <i class="material-icons">mic</i> <!-- Mic icon -->
-    </button>
-    
-    <!-- Dialogflow Messenger -->
     <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
-    
     <df-messenger
         intent="WELCOME"
         chat-title="MITRA"
@@ -3756,49 +3746,60 @@
         language-code="en"
     ></df-messenger>
     
-    <!-- Script for Speech Recognition -->
+    <!-- Microphone Button -->
+    <button id="microphone">
+        <i class="material-icons">mic</i>
+    </button>
+    
     <script>
+        const microphoneButton = document.getElementById("microphone");
+    
+    // Check if SpeechRecognition is supported
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';  // Set the language of speech recognition
-            recognition.continuous = false;  // Stop when the user stops speaking
-    
-            const microphoneButton = document.getElementById('microphone-btn');
-            
-            // Event listener for microphone button
-            microphoneButton.addEventListener('click', function() {
-                recognition.start();  // Start speech recognition
-                console.log("Listening...");
-            });
-    
-            // When speech recognition result is available
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;  // Get the transcribed text
-                console.log('You said: ', transcript);
-    
-                // Send the transcribed text to Dialogflow Messenger
-                sendToDialogflow(transcript);
-            };
-    
-            // Error handling
-            recognition.onerror = function(event) {
-                console.log('Speech recognition error: ', event.error);
-            };
-        } else {
-            console.log('SpeechRecognition API not supported in this browser.');
+        if (!SpeechRecognition) {
+            console.error("SpeechRecognition is not supported in this browser.");
         }
     
-        // Function to send the text to Dialogflow
-        function sendToDialogflow(userMessage) {
-            const dfMessenger = document.querySelector('df-messenger');
+        const recognition = new SpeechRecognition();
+        recognition.lang = "en-US"; // Set the language to English
+        recognition.continuous = false; // Stop after one input
     
-            if (dfMessenger) {
-                dfMessenger.querySelector('input').value = userMessage;  // Set the input field with transcribed text
-                dfMessenger.querySelector('form').submit();  // Trigger submission (send to Dialogflow)
-            }
-        }
+        // Handle recognition start
+        recognition.onstart = function() {
+            console.log("Speech recognition started");
+            microphoneButton.classList.add("listening");
+        };
+    
+        // Handle recognition end
+        recognition.onend = function() {
+            console.log("Speech recognition ended");
+            microphoneButton.classList.remove("listening");
+        };
+    
+        // Handle recognition result
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript; // Get the speech-to-text result
+            console.log("Recognized text: ", transcript);
+    
+            // Simulate sending the text to the chatbot
+            const chatbotInput = document.querySelector('df-messenger').shadowRoot.querySelector('df-messenger-chat').shadowRoot.querySelector('input');
+            chatbotInput.value = transcript;
+            chatbotInput.dispatchEvent(new Event('input'));
+        
+            // Trigger Dialogflow Messenger to process the input
+            const sendButton = document.querySelector('df-messenger').shadowRoot.querySelector('df-messenger-chat').shadowRoot.querySelector('button');
+            sendButton.click(); // This sends the input to Dialogflow
+        };
+    
+        // Handle errors
+        recognition.onerror = function(event) {
+            console.error("SpeechRecognition error", event.error);
+        };
+    
+        // Start recognition when the microphone button is clicked
+        microphoneButton.addEventListener("click", function() {
+            recognition.start();
+        });
     </script>
         
 </body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
