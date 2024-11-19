@@ -3753,49 +3753,49 @@
     
     <script>
         const microphoneButton = document.getElementById("microphone");
-    
-    // Check if SpeechRecognition is supported
+
+        // Check if SpeechRecognition is supported
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
             console.error("SpeechRecognition is not supported in this browser.");
         }
-    
+
         const recognition = new SpeechRecognition();
         recognition.lang = "en-US"; // Set the language to English
         recognition.continuous = false; // Stop after one input
-    
+
         // Handle recognition start
         recognition.onstart = function() {
             console.log("Speech recognition started");
             microphoneButton.classList.add("listening");
         };
-    
+
         // Handle recognition end
         recognition.onend = function() {
             console.log("Speech recognition ended");
             microphoneButton.classList.remove("listening");
         };
-    
+
         // Handle recognition result
         recognition.onresult = function(event) {
             const transcript = event.results[0][0].transcript; // Get the speech-to-text result
             console.log("Recognized text: ", transcript);
-    
+
             // Simulate sending the text to the chatbot
             const chatbotInput = document.querySelector('df-messenger').shadowRoot.querySelector('df-messenger-chat').shadowRoot.querySelector('input');
             chatbotInput.value = transcript;
             chatbotInput.dispatchEvent(new Event('input'));
-        
+
             // Trigger Dialogflow Messenger to process the input
             const sendButton = document.querySelector('df-messenger').shadowRoot.querySelector('df-messenger-chat').shadowRoot.querySelector('button');
             sendButton.click(); // This sends the input to Dialogflow
         };
-    
+
         // Handle errors
         recognition.onerror = function(event) {
             console.error("SpeechRecognition error", event.error);
         };
-    
+
         // Start recognition when the microphone button is clicked
         microphoneButton.addEventListener("click", function() {
             recognition.start();
